@@ -44,7 +44,7 @@ impl QrackSimulator {
     pub fn new(qubit_count: u64) -> Result<Self, QrackError> {
         let sid;
         unsafe {
-            sid = qrack_system::init_count(qubit_count, false);
+            sid = qrack_system::init_count(qubit_count, false, false);
             if qrack_system::get_error(sid) != 0 {
                 return Err(QrackError{});
             }
@@ -61,42 +61,23 @@ impl QrackSimulator {
         is_cpu_gpu_hybrid: bool,
         is_opencl: bool,
         is_host_pointer: bool,
+        is_sparse: bool,
         is_noisy: bool) -> Result<Self, QrackError> {
 
         let sid;
-        if is_tensor_network
-            && is_schmidt_decompose
-            && is_stabilizer_hybrid
-            && !is_binary_decision_tree
-            && is_paged
-            && is_cpu_gpu_hybrid
-            && is_opencl {
-            if is_schmidt_decompose_multi {
-                unsafe {
-                    sid = qrack_system::init_count(qubit_count, is_host_pointer);
-                }
-            } else {
-                unsafe {
-                    sid = qrack_system::init_count_pager(qubit_count, is_host_pointer);
-                }
-            }
-        } else {
-            unsafe {
-                sid = qrack_system::init_count_type(qubit_count,
-                                                              is_tensor_network,
-                                                              is_schmidt_decompose_multi,
-                                                              is_schmidt_decompose,
-                                                              is_stabilizer_hybrid,
-                                                              is_binary_decision_tree,
-                                                              is_paged,
-                                                              is_noisy,
-                                                              is_cpu_gpu_hybrid,
-                                                              is_opencl,
-                                                              is_host_pointer);
-            }
-        }
-
         unsafe {
+            sid = qrack_system::init_count_type(qubit_count,
+                                                          is_tensor_network,
+                                                          is_schmidt_decompose_multi,
+                                                          is_schmidt_decompose,
+                                                          is_stabilizer_hybrid,
+                                                          is_binary_decision_tree,
+                                                          is_paged,
+                                                          is_noisy,
+                                                          is_cpu_gpu_hybrid,
+                                                          is_opencl,
+                                                          is_host_pointer,
+                                                          is_sparse);
             if qrack_system::get_error(sid) != 0 {
                 return Err(QrackError{});
             }

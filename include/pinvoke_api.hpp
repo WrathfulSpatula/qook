@@ -23,6 +23,7 @@
 #endif
 
 typedef unsigned long long uintq;
+typedef long long intq;
 typedef void (*IdCallback)(uintq);
 typedef bool (*ProbAmpCallback)(size_t, double, double);
 
@@ -34,18 +35,23 @@ extern "C" {
 // non-quantum
 MICROSOFT_QUANTUM_DECL int get_error(_In_ uintq sid);
 MICROSOFT_QUANTUM_DECL uintq init_count_type(_In_ uintq q, _In_ bool tn, _In_ bool md, _In_ bool sd, _In_ bool sh,
-    _In_ bool bdt, _In_ bool pg, _In_ bool nw, _In_ bool hy, _In_ bool oc, _In_ bool dm);
-MICROSOFT_QUANTUM_DECL uintq init_count(_In_ uintq q, _In_ bool dm);
-MICROSOFT_QUANTUM_DECL uintq init_count_pager(_In_ uintq q, _In_ bool dm);
-MICROSOFT_QUANTUM_DECL uintq init() { return init_count(0, false); }
+    _In_ bool bdt, _In_ bool pg, _In_ bool nw, _In_ bool hy, _In_ bool oc, _In_ bool hp, _In_ bool sp);
+MICROSOFT_QUANTUM_DECL uintq init_count(_In_ uintq q, _In_ bool hp, _In_ bool sp);
+MICROSOFT_QUANTUM_DECL uintq init_count_pager(_In_ uintq q, _In_ bool hp, _In_ bool sp);
+MICROSOFT_QUANTUM_DECL uintq init_count_stabilizer(_In_ uintq q);
+MICROSOFT_QUANTUM_DECL uintq init() { return init_count(0, false, false); }
 MICROSOFT_QUANTUM_DECL uintq init_clone(_In_ uintq sid);
 MICROSOFT_QUANTUM_DECL void destroy(_In_ uintq sid);
 MICROSOFT_QUANTUM_DECL void seed(_In_ uintq sid, _In_ uintq s);
 MICROSOFT_QUANTUM_DECL void set_concurrency(_In_ uintq sid, _In_ uintq p);
+MICROSOFT_QUANTUM_DECL void set_device(_In_ uintq sid, _In_ intq did);
+MICROSOFT_QUANTUM_DECL void set_device_list(_In_ uintq sid, _In_ uintq n, _In_reads_(n) intq* dids);
 MICROSOFT_QUANTUM_DECL void qstabilizer_out_to_file(_In_ uintq sid, _In_ char* f);
 MICROSOFT_QUANTUM_DECL void qstabilizer_in_from_file(_In_ uintq sid, _In_ char* f);
 
 // pseudo-quantum
+MICROSOFT_QUANTUM_DECL void HighestProbAll(_In_ uintq sid, uintq* r);
+MICROSOFT_QUANTUM_DECL void HighestProbAllN(_In_ uintq sid, _In_ uintq n, uintq* r);
 #if FPPOW < 6
 MICROSOFT_QUANTUM_DECL void ProbAll(_In_ uintq sid, _In_ uintq n, _In_reads_(n) uintq* q, float* p);
 #else
@@ -129,10 +135,12 @@ MICROSOFT_QUANTUM_DECL void Dump(_In_ uintq sid, _In_ ProbAmpCallback callback);
 MICROSOFT_QUANTUM_DECL void InKet(_In_ uintq sid, _In_ float* ket);
 MICROSOFT_QUANTUM_DECL void OutKet(_In_ uintq sid, _In_ float* ket);
 MICROSOFT_QUANTUM_DECL void OutProbs(_In_ uintq sid, _In_ float* ket);
+MICROSOFT_QUANTUM_DECL void OutReducedDensityMatrix(_In_ uintq sid, _In_ uintq n, _In_reads_(n) uintq* q, float* rdm);
 #else
 MICROSOFT_QUANTUM_DECL void InKet(_In_ uintq sid, _In_ double* ket);
 MICROSOFT_QUANTUM_DECL void OutKet(_In_ uintq sid, _In_ double* ket);
 MICROSOFT_QUANTUM_DECL void OutProbs(_In_ uintq sid, _In_ double* ket);
+MICROSOFT_QUANTUM_DECL void OutReducedDensityMatrix(_In_ uintq sid, _In_ uintq n, _In_reads_(n) uintq* q, double* rdm);
 #endif
 
 MICROSOFT_QUANTUM_DECL size_t random_choice(_In_ uintq sid, _In_ size_t n, _In_reads_(n) double* p);
@@ -221,7 +229,8 @@ MICROSOFT_QUANTUM_DECL void MCExp(_In_ uintq sid, _In_ uintq n, _In_reads_(n) in
 // measurements
 MICROSOFT_QUANTUM_DECL uintq M(_In_ uintq sid, _In_ uintq q);
 MICROSOFT_QUANTUM_DECL uintq ForceM(_In_ uintq sid, _In_ uintq q, _In_ bool r);
-MICROSOFT_QUANTUM_DECL uintq MAll(_In_ uintq sid);
+MICROSOFT_QUANTUM_DECL uintq MAll(_In_ uintq sid); // DEPRECATED
+MICROSOFT_QUANTUM_DECL void MAllLong(_In_ uintq sid, uintq* r);
 MICROSOFT_QUANTUM_DECL uintq Measure(_In_ uintq sid, _In_ uintq n, _In_reads_(n) int* b, _In_reads_(n) uintq* q);
 MICROSOFT_QUANTUM_DECL void MeasureShots(
     _In_ uintq sid, _In_ uintq n, _In_reads_(n) uintq* q, _In_ uintq s, _In_reads_(s) uintq* m);
@@ -359,4 +368,6 @@ MICROSOFT_QUANTUM_DECL void qcircuit_append_mc(
 MICROSOFT_QUANTUM_DECL void qcircuit_run(_In_ uintq cid, _In_ uintq sid);
 MICROSOFT_QUANTUM_DECL void qcircuit_out_to_file(_In_ uintq cid, _In_ char* f);
 MICROSOFT_QUANTUM_DECL void qcircuit_in_from_file(_In_ uintq cid, _In_ char* f);
+MICROSOFT_QUANTUM_DECL size_t qcircuit_out_to_string_length(_In_ uintq cid);
+MICROSOFT_QUANTUM_DECL void qcircuit_out_to_string(_In_ uintq cid, _In_ char* f);
 }

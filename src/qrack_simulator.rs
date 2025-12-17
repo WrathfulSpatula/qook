@@ -3234,16 +3234,12 @@ impl QrackSimulator {
     }
 
     pub fn set_sdrp(&self, sdrp: f64) -> Result<(), QrackError> {
-        // Reset fidelity estimate
+        // Set SDRP
         //
         // When using "Schmidt decomposition rounding parameter" ("SDRP")
-        // approximate simulation, QrackSimulator() can make an excellent
-        // estimate of its overall fidelity at any time, tested against a
-        // nearest-neighbor variant of quantum volume circuits.
-        //
-        // Resetting the fidelity calculation to 1.0 happens automatically
-        // when calling `m_all` are can be done manually with
-        // `reset_unitary_fidelity()`.
+        // approximate simulation, QrackSimulator() will ("reactively")
+        // round nearly-separable subsystems to exactly-separable
+        // according to the (one minus) this entanglement threshold.
         //
         // Raises:
         //     RuntimeError: QrackSimulator raised an exception.
@@ -3267,6 +3263,22 @@ impl QrackSimulator {
 
         unsafe {
             qrack_system::SetReactiveSeparate(self.sid, irs);
+        }
+        self.check_error()
+    }
+
+    pub fn set_ncrp(&self, ncrp: f64) -> Result<(), QrackError> {
+        // Set NCRP
+        //
+        // When using "Near-Clifford rounding parameter" ("NCRP")
+        // approximate simulation, QrackSimulator() will round away
+        // non-Clifford gates according to this threshold, read as
+        // fraction of a T-gate angle.
+        //
+        // Raises:
+        //     RuntimeError: QrackSimulator raised an exception.
+        unsafe {
+            qrack_system::SetNcrp(self.sid, ncrp);
         }
         self.check_error()
     }
@@ -3303,6 +3315,39 @@ impl QrackSimulator {
 
         unsafe {
             qrack_system::SetNoiseParameter(self.sid, np);
+        }
+        self.check_error()
+    }
+
+    pub fn set_ace_max_qb(&self, qb: u64) -> Result<(), QrackError> {
+        // Set "automatic circuit elision" (ACE) max qubits
+        //
+        // If isSchmidtDecompose=True, maximum entangled subsytem size
+        // of this simulator will be capped to 'qb', and entangling
+        // gates that would exceed that size are replaced with gate
+        // shadows.
+        //
+        // Raises:
+        //     RuntimeError: QrackSimulator raised an exception.
+        unsafe {
+            qrack_system::SetAceMaxQb(self.sid, qb);
+        }
+        self.check_error()
+    }
+
+    pub fn set_sparse_ace_max_mb(&self, mb: usize) -> Result<(), QrackError> {
+        // Set sparse "automatic circuit elision" (ACE) max memory
+        //
+        // If isSchmidtDecompose=True, isSparse=True, and
+        // isOpenCL=False, maximum subsytem size memory MB of this
+        // simulator will be capped to 'mb', and entangling gates
+        // that would exceed that size are replaced with gate
+        // shadows.
+        //
+        // Raises:
+        //     RuntimeError: QrackSimulator raised an exception.
+        unsafe {
+            qrack_system::SetSparseAceMaxMb(self.sid, mb);
         }
         self.check_error()
     }

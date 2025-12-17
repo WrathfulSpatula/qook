@@ -12,7 +12,7 @@ pub const SEED_DEVRAND: u32 = 1;
 pub const ENABLE_QUNIT_CPU_PARALLEL: u32 = 1;
 pub const FPPOW: u32 = 5;
 pub const PSTRIDEPOW: u32 = 12;
-pub const QBCAPPOW: u32 = 7;
+pub const QBCAPPOW: u32 = 8;
 pub const UINTPOW: u32 = 6;
 pub const CPP_STD: u32 = 14;
 pub const ENABLE_COMPLEX_X2: u32 = 1;
@@ -741,6 +741,12 @@ extern "C" {
 }
 extern "C" {
     pub fn SetNoiseParameter(sid: uintq, np: f64);
+}
+extern "C" {
+    pub fn SetAceMaxQb(sid: uintq, qb: uintq);
+}
+extern "C" {
+    pub fn SetSparseAceMaxMb(sid: uintq, mb: usize);
 }
 extern "C" {
     pub fn Normalize(sid: uintq);
